@@ -5,5 +5,4 @@ export const db = mysql.createConnection({
     user: "root",
     password: "root",
     database: "crud_nodejs"
-
 });
