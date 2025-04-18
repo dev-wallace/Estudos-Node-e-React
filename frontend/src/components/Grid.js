@@ -1,22 +1,24 @@
 import React from "react";
-import styled from "styled-components";
 import axios from "axios";
-import { toast } from "react-toastify";
+import styled from "styled-components";
 import { FaTrash, FaEdit } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const Table = styled.table`
+  width: 100%;
   background-color: #fff;
   padding: 20px;
+  box-shadow: 0px 0px 5px #ccc;
   border-radius: 5px;
-  box-shadow: 0 0 5px #ccc;
-  max-width: 800px;
-  word-break: break-word;
-  margin-top: 20px auto;
-  width: 100%;
+  max-width: 1120px;
+  margin: 20px auto;
+  word-break: break-all;
 `;
 
-export const Tbody = styled.tbody``;
 export const Thead = styled.thead``;
+
+export const Tbody = styled.tbody``;
+
 export const Tr = styled.tr``;
 
 export const Th = styled.th`
@@ -25,29 +27,37 @@ export const Th = styled.th`
   padding-bottom: 5px;
 
   @media (max-width: 500px) {
-    ${(props) => props.onlyWeb && "display: none;"}
+    ${(props) => props.onlyWeb && "display: none"}
   }
 `;
 
 export const Td = styled.td`
-  padding: 10px 0;
+  padding-top: 15px;
   text-align: ${(props) => (props.alignCenter ? "center" : "start")};
   width: ${(props) => (props.width ? props.width : "auto")};
 
   @media (max-width: 500px) {
-    ${(props) => props.onlyWeb && "display: none;"}
+    ${(props) => props.onlyWeb && "display: none"}
   }
 `;
 
-const Grid = ({ users, getUsers }) => {
+const Grid = ({ users, setUsers, setOnEdit }) => {
+  const handleEdit = (item) => {
+    setOnEdit(item);
+  };
+
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8800/users/${id}`);
-      toast.success("Usuário deletado com sucesso!");
-      getUsers(); // Atualiza a lista
-    } catch (error) {
-      toast.error("Erro ao deletar usuário.");
-    }
+    await axios
+      .delete("http://localhost:8800/" + id)
+      .then(({ data }) => {
+        const newArray = users.filter((user) => user.id !== id);
+
+        setUsers(newArray);
+        toast.success(data);
+      })
+      .catch(({ data }) => toast.error(data));
+
+    setOnEdit(null);
   };
 
   return (
@@ -66,12 +76,14 @@ const Grid = ({ users, getUsers }) => {
           <Tr key={i}>
             <Td width="30%">{item.nome}</Td>
             <Td width="30%">{item.email}</Td>
-            <Td width="20%" onlyWeb>{item.fone}</Td>
-            <Td alignCenter width="5%">
-              <FaEdit style={{ cursor: "pointer" }} />
+            <Td width="20%" onlyWeb>
+              {item.fone}
             </Td>
             <Td alignCenter width="5%">
-              <FaTrash onClick={() => handleDelete(item.id)} style={{ cursor: "pointer" }} />
+              <FaEdit onClick={() => handleEdit(item)} />
+            </Td>
+            <Td alignCenter width="5%">
+              <FaTrash onClick={() => handleDelete(item.id)} />
             </Td>
           </Tr>
         ))}

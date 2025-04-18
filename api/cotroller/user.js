@@ -1,59 +1,57 @@
-import {db} from "../db.js";
+import { db } from "../db.js";
 
+export const getUsers = (_, res) => {
+  const q = "SELECT * FROM usuarios";
 
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
 
-export const getUsers = (_,res) =>{
-    const q = "SELECT * FROM users";
-
-    db.query(q, (err,data) => {
-
-        if(err) return res.json(err);
-
-        return res.status(200).json(data);
-    });
+    return res.status(200).json(data);
+  });
 };
-export const addUser = (req,res) =>{
-    const q = "INSERT INTO users(`nome`,`email`,`fone`,`data_nascimento` ) VALUES (?)";
 
-    const values = [
-        req.body.nome,
-        req.body.email,
-        req.body.fone,
-        req.body.data_nascimento,
-    ];
+export const addUser = (req, res) => {
+  const q =
+    "INSERT INTO usuarios(`nome`, `email`, `fone`, `data_nascimento`) VALUES(?)";
 
-    db.query(q,[values], (err,data) => {
+  const values = [
+    req.body.nome,
+    req.body.email,
+    req.body.fone,
+    req.body.data_nascimento,
+  ];
 
-        if(err) return res.json(err);
+  db.query(q, [values], (err) => {
+    if (err) return res.json(err);
 
-        return res.status(200).json("Usuário criado com sucesso!");
-    });
-}
-export const updateUser = (req,res) =>{
-    const q = "UPDATE users SET `nome` = ?, `email` = ?, `fone` = ?, `data_nascimento` = ? WHERE id = ?";
+    return res.status(200).json("Usuário criado com sucesso.");
+  });
+};
 
-    const values = [
-        req.body.nome,
-        req.body.email,
-        req.body.fone,
-        req.body.data_nascimento,
-    ];
+export const updateUser = (req, res) => {
+  const q =
+    "UPDATE usuarios SET `nome` = ?, `email` = ?, `fone` = ?, `data_nascimento` = ? WHERE `id` = ?";
 
-    db.query(q,[...values,req.params.id], (err,data) => {
+  const values = [
+    req.body.nome,
+    req.body.email,
+    req.body.fone,
+    req.body.data_nascimento,
+  ];
 
-        if(err) return res.json(err);
+  db.query(q, [...values, req.params.id], (err) => {
+    if (err) return res.json(err);
 
-        return res.status(200).json("Usuário atualizado com sucesso!");
-    });
-}
+    return res.status(200).json("Usuário atualizado com sucesso.");
+  });
+};
 
-export const deleteUser = (req,res) =>{
-    const q = "DELETE FROM users WHERE id = ?";
+export const deleteUser = (req, res) => {
+  const q = "DELETE FROM usuarios WHERE `id` = ?";
 
-    db.query(q,[req.params.id], (err,data) => {
+  db.query(q, [req.params.id], (err) => {
+    if (err) return res.json(err);
 
-        if(err) return res.json(err);
-
-        return res.status(200).json("Usuário deletado com sucesso!");
-    });
-}
+    return res.status(200).json("Usuário deletado com sucesso.");
+  });
+};

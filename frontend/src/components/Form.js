@@ -1,5 +1,7 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const FormContainer = styled.form`
   display: flex;
@@ -38,11 +40,69 @@ const Button = styled.button`
   height: 42px;
 `;
 
-const Form = ({ onEdit }) => {
+const Form = ({ onEdit, setOnEdit, getUsers }) => {
   const ref = useRef();
 
+  useEffect(() => {
+    if (onEdit) {
+      const user = ref.current;
+      user.name.value = onEdit.nome; // alterado de 'name' para 'nome'
+      user.email.value = onEdit.email;
+      user.fone.value = onEdit.fone;
+      user.data_nascimento.value = onEdit.data_nascimento;
+    }
+  }, [onEdit]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const user = ref.current;
+
+    if (
+      !user.name.value ||
+      !user.email.value ||
+      !user.fone.value ||
+      !user.data_nascimento.value
+    ) {
+      return toast.warn("Preencha todos os campos!");
+    }
+
+    try {
+      if (onEdit) {
+        const response = await axios.put(`http://localhost:8800/${onEdit.id}`, {
+          nome: user.name.value,
+          email: user.email.value,
+          fone: user.fone.value,
+          data_nascimento: user.data_nascimento.value,
+        });
+        toast.success(response.data);
+      } else {
+        const response = await axios.post("http://localhost:8800/", {
+          nome: user.name.value,
+          email: user.email.value,
+          fone: user.fone.value,
+          data_nascimento: user.data_nascimento.value,
+        });
+        toast.success(response.data);
+      }
+
+      // Limpar os campos
+      user.name.value = "";
+      user.email.value = "";
+      user.fone.value = "";
+      user.data_nascimento.value = "";
+
+      setOnEdit(null);
+      getUsers();
+    } catch (error) {
+      // Verificando a resposta do erro e mostrando a mensagem real
+      const errorMessage =
+        error.response?.data || error.message || "Erro desconhecido.";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
-    <FormContainer ref={ref}>
+    <FormContainer ref={ref} onSubmit={handleSubmit}>
       <InputArea>
         <Label>Nome</Label>
         <Input name="name" type="text" placeholder="Digite seu nome" required />
